@@ -3,9 +3,9 @@
  *
  *       Filename:  caculator_core.c
  *
- *    Description: the core of caculator.support randon number.just for long int type,and don't support (). 
+ *    Description: the core of caculator.support randon number.just for long int type,support (). 
  *
- *        Version:  2.0
+ *        Version:  3.0
  *        Created:  2022年07月28日 10时10分53秒
  *       Revision:  none
  *       Compiler:  gcc
