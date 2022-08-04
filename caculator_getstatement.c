@@ -25,6 +25,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <ctype.h>
+#include <string.h>
 
 	
 	void
@@ -39,10 +40,13 @@ caculator_getstatement ( void )
 
 	int priority[255];
 	priority['"'] = 0;
-	priority['+'] = priority['-'] = 1;
-	priority['*'] = priority['/'] = 2;
+	priority['+'] = priority['-'] = 10;
+	priority['*'] = priority['/'] = 20;
+	priority['('] = 1;                    /* 括号未入栈前拥有最高优先级，入栈后优先级最低 */
+	priority[')'] = 1;
 
 	operator[onum++] = '"';
+
 
 	fgets(statement,255,stdin);
 //	printf ( "%s",statement );
@@ -59,20 +63,37 @@ caculator_getstatement ( void )
 			++np;
 		}
 		else {                          /* This case is operator or \n*/
-			*np = '\0';
-			num_stack[sn++] = atoi(number);
+			*np = '\0';             /* store the number */
+//			printf ( "length of the number is : %ld \n",strlen(number) );
+			if ( strlen(number) ) {
+				num_stack[sn++] = atoi(number);
+			}
 			np = number;            /* reset the np to start of number array */
+
+			if(*ptr == '('){
+				operator[onum++] = '(';
+				++ptr;
+				continue;
+			}
 			if(*ptr == '\n')*ptr = '"';
 			if(*ptr == '"' && operator[onum-1] == '"')
 				break;
 			while(priority[*ptr] <= priority[operator[onum-1]]){
+				if(*ptr == ')' && operator[onum-1] == '('){
+					--onum;
+					break;
+				}
 				if(*ptr == '"' && operator[onum-1] == '"')
 					break;
 
 				char op_temp = operator[--onum];
 				long num2 = num_stack[--sn];
 				long num1 = num_stack[--sn];
-				printf("%c\n",op_temp);
+				printf("detect operator: %c ,priority is %d \n",op_temp,priority[op_temp]);
+				
+				for ( int x =0;x < onum ;++x ) {
+					printf ( "Stack %d is: %c ,priority is : %d \n",x,operator[x],priority[operator[x]] );
+				}
 				switch ( op_temp ) {
 					case '*':	
 						num_stack[sn++] = num1 * num2;
@@ -90,13 +111,15 @@ caculator_getstatement ( void )
 						break;
 
 					default:	
-						printf ( "wrong operator.(just support +-*/now\n" );
+						printf ( "wrong operator: %c   (just support +-*/now\n",op_temp );
 						break;
 					}				/* -----  end switch  ----- */
 
 
 			}
-			operator[onum++] = *ptr;
+			if ( *ptr != ')' ) {
+				operator[onum++] = *ptr;
+			}
 
 
 		}
